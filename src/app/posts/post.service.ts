@@ -24,7 +24,8 @@ export class PostService {
           return {
             title: post.title,
             content: post.content,
-            id: post._id
+            id: post._id,
+            imageUrl: post.imageUrl
           };
         });
       }))
@@ -39,27 +40,53 @@ export class PostService {
   }
 
   getPost(id: string): Observable<any> {
-    return this.http.get<{_id: string, title: string, content: string}>('http://localhost:3000/posts/' + id);
+    return this.http.get<{_id: string, title: string, content: string, imageUrl: string}>('http://localhost:3000/posts/' + id);
   }
 
-  addPost(post: Post): void {
-    this.http.post<{message: string, postId: string}>('http://localhost:3000/posts', post).subscribe(responseData => {
-      post.id = responseData.postId;
-      this.posts.push(post);
-      this.postsUpdate.next([...this.posts]);
-      this.router.navigate(['/']);
-    });
+  addPost(post: Post, image: File): void {
+    const postData = new FormData(); // enables us to combine text with blobs
+    postData.append('title', post.title);
+    postData.append('content', post.content);
+    postData.append('image', image, post.title);
+    this.http
+      .post<{message: string, post: Post}>('http://localhost:3000/posts', postData)
+      .subscribe(responseData => {
+        post.id = responseData.post.id;
+        post.imageUrl = responseData.post.imageUrl;
+        this.posts.push(post);
+        this.postsUpdate.next([...this.posts]);
+        this.router.navigate(['/']);
+      });
   }
 
-  updatePost(id: string, post: Post): void {
-    this.http.put('http://localhost:3000/posts/' + id, {title: post.title, content: post.content}).subscribe(response => {
-      const updatedPosts = [...this.posts];
-      const oldPostIndex = updatedPosts.findIndex(p => p.id === post.id);
-      updatedPosts[oldPostIndex] = post;
-      this.posts = updatedPosts;
-      this.postsUpdate.next([...this.posts]);
-      this.router.navigate(['/']);
-    });
+  updatePost(id: string, post: Post, postImage: string | File): void {
+    let postData: Post | FormData;
+    if (typeof postImage === 'object') {
+      postData = new FormData();
+      postData.append('id', id);
+      postData.append('title', post.title);
+      postData.append('content', post.content);
+      postData.append('image', postImage, post.title);
+    } else {
+      postData = {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        imageUrl: postImage
+      };
+    }
+    this.http.put('http://localhost:3000/posts/' + id, postData)
+      .subscribe(response => {
+        const updatedPosts = [...this.posts];
+        const oldPostIndex = updatedPosts.findIndex(p => p.id === post.id);
+        updatedPosts[oldPostIndex] = {
+          ...post,
+          imageUrl: 'response.imageUrl'
+        };
+        this.posts = updatedPosts;
+        this.postsUpdate.next([...this.posts]);
+        this.router.navigate(['/']);
+      });
   }
 
   deletePost(id: string): void {
