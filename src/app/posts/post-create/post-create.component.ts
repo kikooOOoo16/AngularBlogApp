@@ -62,9 +62,11 @@ export class PostCreateComponent implements OnInit {
     if (this.postInputForm.invalid) { return; }
     this.isLoading = true; // we navigate away from this page so we don't have to reset it to false
     if (this.mode === 'create') {
+      console.log('Save Post Fired');
       this.postsService.addPost(
         {
-          id: null, title: this.postInputForm.value.title,
+          id: null,
+          title: this.postInputForm.value.title,
           content: this.postInputForm.value.content,
           imageUrl: null
         },

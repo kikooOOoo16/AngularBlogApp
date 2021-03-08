@@ -13,6 +13,9 @@ export class PostService {
   constructor(private http: HttpClient, private router: Router) {
   }
 
+  getPostUpdateListener(): Observable<{posts: Post[], numOfPosts: number}> {
+    return this.postsUpdate.asObservable();
+  }
 
   getPosts(postsPerPage: number, currentPage: number): void {
     const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`;
@@ -39,10 +42,6 @@ export class PostService {
       });
   }
 
-  getPostUpdateListener(): Observable<{posts: Post[], numOfPosts: number}> {
-    return this.postsUpdate.asObservable();
-  }
-
   getPost(id: string): Observable<any> {
     return this.http.get<{_id: string, title: string, content: string, imageUrl: string}>('http://localhost:3000/posts/' + id);
   }
@@ -52,6 +51,7 @@ export class PostService {
     postData.append('title', post.title);
     postData.append('content', post.content);
     postData.append('image', image, post.title);
+    console.log(postData);
     this.http
       .post<{message: string, post: Post}>('http://localhost:3000/posts', postData)
       .subscribe(responseData => {
