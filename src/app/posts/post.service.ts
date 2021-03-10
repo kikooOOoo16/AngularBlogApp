@@ -30,20 +30,28 @@ export class PostService {
               title: post.title,
               content: post.content,
               id: post._id,
-              imageUrl: post.imageUrl
+              imageUrl: post.imageUrl,
+              author: post.author
             };
           }),
           numOfPosts: responseData.numOfPosts
         };
       }))
       .subscribe(transformedPostData => {
+        console.log(transformedPostData);
         this.posts = transformedPostData.posts;
         this.postsUpdate.next({posts: [...this.posts], numOfPosts: transformedPostData.numOfPosts});
       });
   }
 
   getPost(id: string): Observable<any> {
-    return this.http.get<{_id: string, title: string, content: string, imageUrl: string}>('http://localhost:3000/posts/' + id);
+    return this.http.get<{
+      _id: string,
+      title: string,
+      content: string,
+      imageUrl: string,
+      author: string
+    }>('http://localhost:3000/posts/' + id);
   }
 
   addPost(post: Post, image: File): void {
@@ -72,7 +80,9 @@ export class PostService {
         id: post.id,
         title: post.title,
         content: post.content,
-        imageUrl: postImage
+        imageUrl: postImage,
+        author: null
+        // we will take care of this on the server so that it can't be edited here
       };
     }
     this.http.put('http://localhost:3000/posts/' + id, postData)

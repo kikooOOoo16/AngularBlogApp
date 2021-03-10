@@ -43,7 +43,8 @@ export class PostCreateComponent implements OnInit {
             id: postData._id,
             title: postData.title,
             content: postData.content,
-            imageUrl: postData.imageUrl
+            imageUrl: postData.imageUrl,
+            author: postData.author
           };
           this.postInputForm.setValue({
             title: this.editPost.title,
@@ -68,7 +69,8 @@ export class PostCreateComponent implements OnInit {
           id: null,
           title: this.postInputForm.value.title,
           content: this.postInputForm.value.content,
-          imageUrl: null
+          imageUrl: null,
+          author: null
         },
         this.postInputForm.value.image
       );
@@ -77,7 +79,8 @@ export class PostCreateComponent implements OnInit {
         id: this.editPostId,
         title: this.postInputForm.value.title,
         content: this.postInputForm.value.content,
-        imageUrl: null
+        imageUrl: null,
+        author: null
       }, this.postInputForm.value.image );
     }
     this.postInputForm.reset();
