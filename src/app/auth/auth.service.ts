@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpRequest} from '@angular/common/http';
 import {AuthData} from './auth-data.model';
 import {Observable, Subject} from 'rxjs';
 import {Router} from '@angular/router';
@@ -22,10 +22,12 @@ export  class AuthService {
       email,
       password
     };
-    this.http.post('http://localhost:3000/auth/signup', authData)
-      .subscribe(res => {
-        console.log(res);
+    this.http
+      .post('http://localhost:3000/auth/signup', authData)
+      .subscribe(() => {
         this.router.navigate(['/']);
+      }, error => {
+        this.authStatusObservable.next(false);
       });
   }
 
@@ -64,6 +66,8 @@ export  class AuthService {
           this.saveAuthStatus(this.token, expirationDate, this.userId);
           this.router.navigate(['/']);
         }
+      }, error => {
+        this.authStatusObservable.next(false);
       });
   }
 
